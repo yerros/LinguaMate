@@ -1,9 +1,14 @@
-import { Text, View } from 'react-native';
+import SignOutButton from '@/components/clerk/SignOutButton';
+import { Layout, Text, View } from '@/components/ui/';
+
 
 export default function ProtectedScreen() {
     return (
-        <View className='flex-1 items-center justify-center'>
-            <Text className='text-2xl font-bold'>Protected</Text>
-        </View>
+        <Layout>
+            <View className='flex-1 items-center justify-center'>
+                <Text className='text-2xl font-bold text-white'>Protected</Text>
+            </View>
+            <SignOutButton />
+        </Layout>
     );
 }
