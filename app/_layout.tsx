@@ -1,7 +1,9 @@
 import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import { tokenCache } from '@clerk/clerk-expo/token-cache';
 import { Stack } from 'expo-router';
+import { PressablesConfig } from 'pressto';
 
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 import '../global.css';
 
@@ -29,7 +31,15 @@ function RootLayoutNav() {
 export default function RootLayout() {
   return (
     <ClerkProvider tokenCache={tokenCache}>
-      <RootLayoutNav />
+      <GestureHandlerRootView>
+        <PressablesConfig
+          animationType="spring"
+          animationConfig={{ damping: 30, stiffness: 200 }}
+          config={{ minScale: 0.9, activeOpacity: 0.6 }}
+        >
+          <RootLayoutNav />
+        </PressablesConfig>
+      </GestureHandlerRootView>
     </ClerkProvider>
   );
 }

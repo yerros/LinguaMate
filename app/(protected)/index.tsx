@@ -1,10 +1,10 @@
-import Button from '@/components/clerk/components/Button';
 import GlassCard from '@/components/GlassCard';
 import HeaderButton from '@/components/HeaderButton';
 import { Layout, Text, View } from '@/components/ui/';
 import { FontAwesome } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { Dimensions, ScrollView } from 'react-native';
+import { PressableScale } from 'pressto';
+import { Dimensions, ScrollView, StyleSheet } from 'react-native';
 
 const { width } = Dimensions.get('screen')
 
@@ -28,14 +28,14 @@ export default function HomeScreen() {
                         <Text size='xxxl' className='font-bold '>Hi, I'm Linguamate</Text>
                         <Text size='md' >What would you like to learn today?</Text>
                     </View>
-                    <Button className='items-center gap-2 pt-5' onPress={() => console.log('Voice pressed')}>
+                    <PressableScale onPress={() => console.log('Voice pressed')} style={styles.buttonSpeak}>
                         <Image
                             source={require('@/assets/images/voice.png')}
                             style={{ width: 72, height: 72 }}
                             contentFit='contain'
                         />
                         <Text size='md' className='underline'>Tap to speak</Text>
-                    </Button>
+                    </PressableScale>
                 </View>
                 {/* Menu Section */}
                 <View className='flex-row gap-4 items-center justify-center flex-wrap'>
@@ -72,3 +72,10 @@ export default function HomeScreen() {
         </Layout>
     );
 }
+
+const styles = StyleSheet.create({
+    buttonSpeak: {
+        alignItems: 'center',
+        gap: 8,
+    },
+});
