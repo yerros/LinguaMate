@@ -3,8 +3,9 @@ import HeaderButton from '@/components/HeaderButton';
 import { Layout, Text, View } from '@/components/ui/';
 import { FontAwesome } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import { PressableScale } from 'pressto';
-import { Dimensions, ScrollView, StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 
 const { width } = Dimensions.get('screen')
 
@@ -12,12 +13,12 @@ const { width } = Dimensions.get('screen')
 export default function HomeScreen() {
     return (
         <Layout>
-            <ScrollView className='flex-1'>
+            <View className='flex-1'>
                 {/* Logo and Header Buttons */}
                 <View className='mb-10 flex-row items-center justify-between'>
                     <View className='flex-row items-center gap-1'>
                         <Image source={require('@/assets/images/icon.png')} style={{ width: 52, height: 52 }} />
-                        <Text size='xxl' className='text-white font-bold'>AI Learning App</Text>
+                        <Text size='xxl' className='text-white font-bold'>LinguaMate</Text>
                     </View>
                     <HeaderButton />
                 </View>
@@ -43,32 +44,18 @@ export default function HomeScreen() {
                         icon={<FontAwesome name='comments' size={24} color='#fff' />}
                         title="Chat Assistant"
                         subtitle="Start a conversation"
-                        onPress={() => console.log('Chat pressed')}
+                        onPress={() => router.push('/chat')}
                         iconColor="#60A5FA"
                     />
                     <GlassCard
                         icon={<FontAwesome name='image' size={24} color='#fff' />}
                         title="Image Generation"
                         subtitle="Create Artwork"
-                        onPress={() => console.log('Chat pressed')}
-                        iconColor="#60A5FA"
-                    />
-                    <GlassCard
-                        icon={<FontAwesome name='comments' size={24} color='#fff' />}
-                        title="Voice Assistant"
-                        subtitle="Voice Commands"
-                        onPress={() => console.log('Chat pressed')}
-                        iconColor="#60A5FA"
-                    />
-                    <GlassCard
-                        icon={<FontAwesome name='comments' size={24} color='#fff' />}
-                        title="AI Tools"
-                        subtitle="Tools for your work"
-                        onPress={() => console.log('Chat pressed')}
+                        onPress={() => router.push('/image-generation')}
                         iconColor="#60A5FA"
                     />
                 </View>
-            </ScrollView>
+            </View>
         </Layout>
     );
 }
