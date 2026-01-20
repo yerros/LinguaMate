@@ -2,7 +2,7 @@ import { ImageBackground, StyleSheet, View } from "react-native";
 
 export default function Layout({ children, className }: { children: React.ReactNode, className?: string }) {
     return (
-        <View className={`flex-1 pt-20 px-6 pb-20 bg-black ${className || ''}`}>
+        <View className={`flex-1 pt-20 px-6 bg-black ${className || ''}`}>
             <ImageBackground source={require('@/assets/images/bg-gradient.png')} style={styles.gradient}></ImageBackground>
             {children}
             <ImageBackground source={require('@/assets/images/bg-bottom.png')} style={styles.bottom}></ImageBackground>

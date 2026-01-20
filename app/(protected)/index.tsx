@@ -38,7 +38,7 @@ export default function HomeScreen() {
                     </PressableScale>
                 </View>
                 {/* Menu Section */}
-                <View className='flex-row gap-4 items-center justify-center flex-wrap'>
+                <View className='flex flex-row gap-4 items-center justify-center flex-wrap mb-28'>
                     <GlassCard
                         icon={<FontAwesome name='comments' size={24} color='#fff' />}
                         title="Chat Assistant"

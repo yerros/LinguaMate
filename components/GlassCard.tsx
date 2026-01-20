@@ -51,7 +51,7 @@ const GlassCard: React.FC<GlassCardProps> = ({
 
     return (
         <AnimatedTouchable
-            className="border border-gray-800/60 rounded-3xl p-8 w-52 overflow-hidden"
+            className="border border-gray-800/60 rounded-3xl p-8 w-48 overflow-hidden"
             style={[
                 animatedStyle,
                 {
