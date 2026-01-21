@@ -3,6 +3,7 @@ import { tokenCache } from '@clerk/clerk-expo/token-cache';
 import { Stack } from 'expo-router';
 import { PressablesConfig } from 'pressto';
 
+import { ElevenLabsProvider } from '@elevenlabs/react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 import '../global.css';
@@ -16,6 +17,7 @@ function RootLayoutNav() {
   }
 
   return (
+    <ElevenLabsProvider>
     <Stack>
       <Stack.Protected guard={isSignedIn}>
         <Stack.Screen name='(protected)' options={{ headerShown: false }} />
@@ -24,6 +26,7 @@ function RootLayoutNav() {
         <Stack.Screen name='(public)' options={{ headerShown: false }} />
       </Stack.Protected>
     </Stack>
+    </ElevenLabsProvider>
   )
 }
 

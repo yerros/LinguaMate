@@ -15,7 +15,7 @@ export default function HomeScreen() {
         <Layout>
             <View className='flex-1'>
                 {/* Logo and Header Buttons */}
-                <View className='mb-10 flex-row items-center justify-between'>
+                <View className='flex-row items-center justify-between mb-12'>
                     <View className='flex-row items-center gap-1'>
                         <Image source={require('@/assets/images/icon.png')} style={{ width: 52, height: 52 }} />
                         <Text size='xxl' className='text-white font-bold'>LinguaMate</Text>
@@ -23,13 +23,13 @@ export default function HomeScreen() {
                     <HeaderButton />
                 </View>
                 {/* Hero Section */}
-                <View className='mb-14 flex-1 items-center gap-8 w-full'>
+                <View className='flex items-center gap-8 w-full mb-12'>
                     <Image source={require('@/assets/images/hero-bg.png')} contentFit='contain' style={{ width: width, height: 170 }} />
                     <View className='gap-4'>
                         <Text size='xxxl' className='font-bold '>Hi, I'm Linguamate</Text>
                         <Text size='md' >What would you like to learn today?</Text>
                     </View>
-                    <PressableScale onPress={() => console.log('Voice pressed')} style={styles.buttonSpeak}>
+                    <PressableScale onPress={() => router.push('/chat/voice')} style={styles.buttonSpeak}>
                         <Image
                             source={require('@/assets/images/voice.png')}
                             style={{ width: 72, height: 72 }}
@@ -39,7 +39,7 @@ export default function HomeScreen() {
                     </PressableScale>
                 </View>
                 {/* Menu Section */}
-                <View className='flex flex-row gap-4 items-center justify-center flex-wrap mb-28'>
+                <View className='flex flex-row gap-4 items-center justify-center'>
                     <GlassCard
                         icon={<FontAwesome name='comments' size={24} color='#fff' />}
                         title="Chat Assistant"

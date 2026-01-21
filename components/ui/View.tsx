@@ -1,5 +1,5 @@
-import { View as RNView, ViewProps } from 'react-native';
+import { View as RNView, StyleProp, ViewProps, ViewStyle } from 'react-native';
 
-export default function View({ children, className, ...props }: ViewProps & { children: React.ReactNode, className?: string }) {
-    return <RNView {...props} className={className}>{children}</RNView>;
+export default function View({ children, className, style, ...props }: ViewProps & { children: React.ReactNode, className?: string, style?: StyleProp<ViewStyle> }) {
+    return <RNView {...props} className={className} style={style}>{children}</RNView>;
 }
