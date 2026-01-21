@@ -18,7 +18,7 @@ export default function HomeScreen() {
                 <View className='flex-row items-center justify-between mb-12'>
                     <View className='flex-row items-center gap-1'>
                         <Image source={require('@/assets/images/icon.png')} style={{ width: 52, height: 52 }} />
-                        <Text size='xxl' className='text-white font-bold'>AI Learning App</Text>
+                        <Text size='xxl' className='text-white font-bold'>LinguaMate</Text>
                     </View>
                     <HeaderButton />
                 </View>
@@ -44,14 +44,14 @@ export default function HomeScreen() {
                         icon={<FontAwesome name='comments' size={24} color='#fff' />}
                         title="Chat Assistant"
                         subtitle="Start a conversation"
-                        onPress={() => console.log('Chat pressed')}
+                        onPress={() => router.push('/chat')}
                         iconColor="#60A5FA"
                     />
                     <GlassCard
                         icon={<FontAwesome name='image' size={24} color='#fff' />}
                         title="Image Generation"
                         subtitle="Create Artwork"
-                        onPress={() => console.log('Chat pressed')}
+                        onPress={() => router.push('/image-generation')}
                         iconColor="#60A5FA"
                     />
                 </View>
