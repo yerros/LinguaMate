@@ -54,6 +54,15 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "@livekit/react-native-expo-plugin"
+      ],
+      [
+        "@config-plugins/react-native-webrtc",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+        }
       ]
     ],
     "experiments": {
