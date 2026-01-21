@@ -10,7 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yerros.LinguaMate"
+      "bundleIdentifier": "com.yerros.LinguaMate",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app needs access to microphone for voice conversations."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -21,6 +24,16 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.CAMERA",
+        "android.permission.INTERNET",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.WAKE_LOCK",
+        "android.permission.BLUETOOTH"
+      ],
       "package": "com.yerros.LinguaMate"
     },
     "web": {
