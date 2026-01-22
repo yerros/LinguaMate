@@ -1,4 +1,5 @@
 import { useAuth } from '@/hooks/use-auth';
+import { useSubscription } from '@/hooks/use-subscription';
 import { Icon, NativeTabs } from 'expo-router/unstable-native-tabs';
 import { ActivityIndicator, Platform, View } from 'react-native';
 
@@ -11,9 +12,11 @@ const icon = {
 export default function TabLayout() {
     // Ensure user is fetched when protected area is opened
     const { isLoading, user } = useAuth();
+    // Ensure subscription is checked/created when protected area is opened
+    const { isLoading: isLoadingSubscription } = useSubscription();
 
-    // Show loading while user is being fetched
-    if (isLoading) {
+    // Show loading while user or subscription is being fetched
+    if (isLoading || isLoadingSubscription) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <ActivityIndicator size="large" />

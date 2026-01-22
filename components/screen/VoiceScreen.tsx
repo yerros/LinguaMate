@@ -1,10 +1,14 @@
 import { Layout, Text, View } from '@/components/ui/';
+import UsageLimitBanner from '@/components/UsageLimitBanner';
+import { useAuth } from '@/hooks/use-auth';
+import { useUsageLimit } from '@/hooks/use-usage-limit';
+import { updateUserTotalUsage } from '@/services/usage';
 import { useConversation } from '@elevenlabs/react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { PressableScale } from 'pressto';
 import { useEffect, useRef, useState } from 'react';
-import { Dimensions, View as RNView, StyleSheet } from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, View as RNView, StyleSheet } from 'react-native';
 import Animated, {
     Easing,
     interpolate,
@@ -20,16 +24,22 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 export default function VoiceScreen() {
     const [isConnected, setIsConnected] = useState(false);
     const [isConversationStarted, setIsConversationStarted] = useState(false);
+    const [isCheckingLimit, setIsCheckingLimit] = useState(false);
+    const [conversationStartTime, setConversationStartTime] = useState<Date | null>(null);
+
+    // Usage limits
+    const { user } = useAuth();
+    const { canPerformAction, recordUsage, isLoading: isLoadingUsage } = useUsageLimit();
 
     const AnimatedIcon = Animated.createAnimatedComponent(Ionicons);
     const AnimatedView = Animated.createAnimatedComponent(RNView);
-    
+
     const scale = useSharedValue(1);
     const ripple1 = useSharedValue(0);
     const ripple2 = useSharedValue(0);
     const ripple3 = useSharedValue(0);
 
-    // Refs untuk menyimpan timeout IDs
+    // Refs to store timeout IDs
     const timeout2Ref = useRef<ReturnType<typeof setTimeout> | null>(null);
     const timeout3Ref = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -68,14 +78,14 @@ export default function VoiceScreen() {
 
     useEffect(() => {
         if (isConnected) {
-            // Animasi icon: membesar ke 1.15, lalu mengecil ke 1.0, berulang terus
+            // Icon animation: scale up to 1.15, then down to 1.0, repeat continuously
             scale.value = withRepeat(
                 withSequence(
-                    withTiming(1.15, { 
+                    withTiming(1.15, {
                         duration: 1000,
                         easing: Easing.inOut(Easing.ease)
                     }),
-                    withTiming(1.0, { 
+                    withTiming(1.0, {
                         duration: 1000,
                         easing: Easing.inOut(Easing.ease)
                     })
@@ -84,10 +94,10 @@ export default function VoiceScreen() {
                 false
             );
 
-            // Ripple effect dengan delay berbeda - reset ke 0 setelah selesai
+            // Ripple effect with different delays - reset to 0 after completion
             ripple1.value = withRepeat(
                 withSequence(
-                    withTiming(1, { 
+                    withTiming(1, {
                         duration: 2000,
                         easing: Easing.out(Easing.ease)
                     }),
@@ -97,11 +107,11 @@ export default function VoiceScreen() {
                 false
             );
 
-            // Delay untuk ripple2
+            // Delay for ripple2
             timeout2Ref.current = setTimeout(() => {
                 ripple2.value = withRepeat(
                     withSequence(
-                        withTiming(1, { 
+                        withTiming(1, {
                             duration: 2000,
                             easing: Easing.out(Easing.ease)
                         }),
@@ -112,11 +122,11 @@ export default function VoiceScreen() {
                 );
             }, 667);
 
-            // Delay untuk ripple3
+            // Delay for ripple3
             timeout3Ref.current = setTimeout(() => {
                 ripple3.value = withRepeat(
                     withSequence(
-                        withTiming(1, { 
+                        withTiming(1, {
                             duration: 2000,
                             easing: Easing.out(Easing.ease)
                         }),
@@ -127,7 +137,7 @@ export default function VoiceScreen() {
                 );
             }, 1334);
         } else {
-            // Hentikan semua animasi dan kembalikan ke normal
+            // Stop all animations and return to normal
             scale.value = withTiming(1, {
                 duration: 300,
             });
@@ -137,7 +147,7 @@ export default function VoiceScreen() {
         }
 
         return () => {
-            // Cleanup: clear semua timeout yang masih aktif
+            // Cleanup: clear all active timeouts
             if (timeout2Ref.current !== null) {
                 clearTimeout(timeout2Ref.current);
                 timeout2Ref.current = null;
@@ -163,22 +173,96 @@ export default function VoiceScreen() {
     });
 
     const startConversation = async () => {
+        if (!user?.clerkId) {
+            Alert.alert('Error', 'User not authenticated');
+            return;
+        }
+
+        setIsCheckingLimit(true);
         try {
+            // Check if user can start a conversation
+            const check = await canPerformAction({
+                conversations: 1, // Will use 1 conversation
+            });
+
+            if (!check.allowed) {
+                Alert.alert(
+                    'Limit Reached',
+                    check.reason || 'You have reached your daily conversation limit.',
+                    [
+                        { text: 'OK', style: 'cancel' },
+                        {
+                            text: 'Upgrade',
+                            onPress: () => {
+                                // Navigate to upgrade screen
+                                console.log('Navigate to upgrade');
+                            }
+                        }
+                    ]
+                );
+                setIsCheckingLimit(false);
+                return;
+            }
+
+            // Start conversation
             await conversation.startSession({
                 agentId: process.env.EXPO_PUBLIC_AGENT_ID,
             });
+
+            // Record conversation start time for calculating minutes
+            setConversationStartTime(new Date());
+            setIsConversationStarted(true);
             console.log(conversation.status);
         } catch (error) {
             console.error('Error starting conversation:', error);
+            Alert.alert('Error', 'Failed to start conversation. Please try again.');
+        } finally {
+            setIsCheckingLimit(false);
         }
     }
 
     const endConversation = async () => {
+        if (!user?.clerkId) {
+            Alert.alert('Error', 'User not authenticated');
+            return;
+        }
+
         try {
             console.log(conversation.status);
             await conversation.endSession();
+
+            // Calculate minutes used
+            let minutesUsed = 0;
+            if (conversationStartTime) {
+                const endTime = new Date();
+                const diffMs = endTime.getTime() - conversationStartTime.getTime();
+                minutesUsed = Math.ceil(diffMs / 60000); // Convert to minutes, round up
+                minutesUsed = Math.max(1, minutesUsed); // At least 1 minute
+            }
+
+            // Record usage after conversation ends
+            try {
+                await recordUsage({
+                    conversations: 1,
+                    minutes: minutesUsed,
+                });
+
+                // Update total lifetime usage
+                await updateUserTotalUsage(user.clerkId, {
+                    conversations: 1,
+                    minutes: minutesUsed,
+                });
+            } catch (usageError) {
+                console.error('Error recording usage:', usageError);
+                // Don't block the UI if usage recording fails
+            }
+
+            // Reset conversation state
+            setConversationStartTime(null);
+            setIsConversationStarted(false);
         } catch (error) {
             console.error('Failed to end conversation:', error);
+            Alert.alert('Error', 'Failed to end conversation. Please try again.');
         }
     };
 
@@ -186,11 +270,12 @@ export default function VoiceScreen() {
     return (
         <Layout>
             <View className='flex-1 items-center justify-center relative'>
+
                 {/* Header Section */}
                 <View className='absolute top-20 items-center gap-2 z-10'>
                     <Text size='xxxl' className='font-bold text-white mb-1'>Voice Assistant</Text>
                     <View className='flex-row items-center gap-2'>
-                        <RNView 
+                        <RNView
                             className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-gray-500'}`}
                             style={isConnected ? styles.pulse : undefined}
                         />
@@ -201,14 +286,14 @@ export default function VoiceScreen() {
                 </View>
 
                 {/* Mic Icon dengan Ripple Effect - Centered */}
-                <View 
+                <View
                     className='absolute items-center justify-center'
                     style={styles.micContainer}
                 >
                     {/* Ripple circles */}
                     {isConnected && (
                         <>
-                            <AnimatedView 
+                            <AnimatedView
                                 className='absolute rounded-full border-2 border-red-400'
                                 style={[
                                     styles.rippleCircle,
@@ -217,7 +302,7 @@ export default function VoiceScreen() {
                             >
                                 <RNView />
                             </AnimatedView>
-                            <AnimatedView 
+                            <AnimatedView
                                 className='absolute rounded-full border-2 border-red-400'
                                 style={[
                                     styles.rippleCircle,
@@ -226,7 +311,7 @@ export default function VoiceScreen() {
                             >
                                 <RNView />
                             </AnimatedView>
-                            <AnimatedView 
+                            <AnimatedView
                                 className='absolute rounded-full border-2 border-red-400'
                                 style={[
                                     styles.rippleCircle,
@@ -237,17 +322,17 @@ export default function VoiceScreen() {
                             </AnimatedView>
                         </>
                     )}
-                    
+
                     {/* Mic Icon Container */}
-                    <View 
-                        className='items-center justify-center bg-gray-900/50 rounded-full' 
+                    <View
+                        className='items-center justify-center bg-gray-900/50 rounded-full'
                         style={styles.micIconContainer}
                     >
-                        <AnimatedIcon 
-                            name='mic' 
-                            size={60} 
-                            color={isConnected ? '#ef4444' : '#9ca3af'} 
-                            style={animatedStyle} 
+                        <AnimatedIcon
+                            name='mic'
+                            size={60}
+                            color={isConnected ? '#ef4444' : '#9ca3af'}
+                            style={animatedStyle}
                         />
                     </View>
                 </View>
@@ -255,15 +340,25 @@ export default function VoiceScreen() {
                 {/* Status Text */}
                 <View className='absolute bottom-40 items-center gap-4'>
                     <Text size='md' className='text-gray-300 text-center px-8'>
-                        {isConnected 
-                            ? 'Listening... Speak naturally' 
+                        {isConnected
+                            ? 'Listening... Speak naturally'
                             : 'Tap the button below to start a conversation'}
                     </Text>
 
                     {/* Action Button */}
-                    <PressableScale 
-                        onPress={isConnected ? endConversation : startConversation}
-                        style={styles.buttonContainer}
+                    <PressableScale
+                        onPress={() => {
+                            if (isCheckingLimit || isLoadingUsage) return;
+                            if (isConnected) {
+                                endConversation();
+                            } else {
+                                startConversation();
+                            }
+                        }}
+                        style={[
+                            styles.buttonContainer,
+                            (isCheckingLimit || isLoadingUsage) && { opacity: 0.6 }
+                        ]}
                     >
                         <LinearGradient
                             colors={isConnected ? ['#dc2626', '#991b1b'] : ['#3b82f6', '#2563eb']}
@@ -272,17 +367,27 @@ export default function VoiceScreen() {
                             style={styles.buttonGradient}
                         >
                             <View className='flex-row items-center gap-3'>
-                                <Ionicons 
-                                    name={isConnected ? 'stop-circle' : 'mic'} 
-                                    size={24} 
-                                    color='white' 
-                                />
+                                {isCheckingLimit || isLoadingUsage ? (
+                                    <ActivityIndicator size="small" color="white" />
+                                ) : (
+                                    <Ionicons
+                                        name={isConnected ? 'stop-circle' : 'mic'}
+                                        size={24}
+                                        color='white'
+                                    />
+                                )}
                                 <Text size='lg' className='font-semibold text-white'>
-                                    {isConnected ? 'End Conversation' : 'Start Conversation'}
+                                    {isCheckingLimit || isLoadingUsage
+                                        ? 'Checking...'
+                                        : isConnected
+                                            ? 'End Conversation'
+                                            : 'Start Conversation'
+                                    }
                                 </Text>
                             </View>
                         </LinearGradient>
                     </PressableScale>
+                    <UsageLimitBanner />
                 </View>
             </View>
         </Layout>
