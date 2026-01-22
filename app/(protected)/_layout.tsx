@@ -1,11 +1,12 @@
+import LoadingScreen from '@/components/screen/LoadingScreen';
 import { useAuth } from '@/hooks/use-auth';
 import { useSubscription } from '@/hooks/use-subscription';
 import { Icon, NativeTabs } from 'expo-router/unstable-native-tabs';
-import { ActivityIndicator, Platform, View } from 'react-native';
+import { Platform } from 'react-native';
 
 const icon = {
     home: require('../../assets/images/home_icon.png'),
-    chat: require('../../assets/images/chat_icon.png'),
+    voice: require('../../assets/images/microphone.png'),
     settings: require('../../assets/images/user_icon.png'),
 }
 
@@ -17,11 +18,7 @@ export default function TabLayout() {
 
     // Show loading while user or subscription is being fetched
     if (isLoading || isLoadingSubscription) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" />
-            </View>
-        );
+        return <LoadingScreen />;
     }
 
     return (
@@ -34,10 +31,10 @@ export default function TabLayout() {
                         android: <Icon src={icon.home} />
                     })}
                 </NativeTabs.Trigger>
-                <NativeTabs.Trigger name="chat">
+                <NativeTabs.Trigger name="voice">
                     {Platform.select({
-                        ios: <Icon sf={{ default: 'message', selected: 'message.fill' }} />,
-                        android: <Icon src={icon.chat} />
+                        ios: <Icon sf={{ default: 'mic', selected: 'mic.fill' }} />,
+                        android: <Icon src={icon.voice} />
                     })}
                 </NativeTabs.Trigger>
                 <NativeTabs.Trigger name="settings">

@@ -1,7 +1,5 @@
-import GlassCard from '@/components/GlassCard';
 import HeaderButton from '@/components/HeaderButton';
 import { Layout, Text, View } from '@/components/ui/';
-import { FontAwesome } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { PressableScale } from 'pressto';
@@ -29,7 +27,7 @@ export default function HomeScreen() {
                         <Text size='xxxl' className='font-bold '>Hi, I'm Linguamate</Text>
                         <Text size='md' >What would you like to learn today?</Text>
                     </View>
-                    <PressableScale onPress={() => router.push('/chat/voice')} style={styles.buttonSpeak}>
+                    <PressableScale onPress={() => router.push('/voice')} style={styles.buttonSpeak}>
                         <Image
                             source={require('@/assets/images/voice.png')}
                             style={{ width: 72, height: 72 }}
@@ -37,23 +35,6 @@ export default function HomeScreen() {
                         />
                         <Text size='md' className='underline'>Tap to speak</Text>
                     </PressableScale>
-                </View>
-                {/* Menu Section */}
-                <View className='flex flex-row gap-4 items-center justify-center'>
-                    <GlassCard
-                        icon={<FontAwesome name='comments' size={24} color='#fff' />}
-                        title="Chat Assistant"
-                        subtitle="Start a conversation"
-                        onPress={() => router.push('/chat')}
-                        iconColor="#60A5FA"
-                    />
-                    <GlassCard
-                        icon={<FontAwesome name='image' size={24} color='#fff' />}
-                        title="Image Generation"
-                        subtitle="Create Artwork"
-                        onPress={() => router.push('/image-generation')}
-                        iconColor="#60A5FA"
-                    />
                 </View>
             </View>
         </Layout>

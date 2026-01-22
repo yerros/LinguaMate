@@ -1,7 +1,8 @@
 import { Text, View } from '@/components/ui/';
 import { useUsageLimit } from '@/hooks/use-usage-limit';
 import { getRemainingUsage, getUsageLimits } from '@/utils/usage-limits';
-import { Alert, Pressable } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable } from 'react-native';
 
 /**
  * Component to display usage limit banner
@@ -42,19 +43,8 @@ export default function UsageLimitBanner() {
     }
 
     const showUpgrade = () => {
-        Alert.alert(
-            'Limit Reached',
-            'You have reached your daily usage limit. Upgrade to Pro or Pro Plus for more usage.',
-            [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                    text: 'Upgrade', onPress: () => {
-                        // Navigate to upgrade screen
-                        console.log('Navigate to upgrade');
-                    }
-                }
-            ]
-        );
+        // Navigate to paywall screen
+        router.push({ pathname: '/(protected)/paywall' as any });
     };
 
     return (

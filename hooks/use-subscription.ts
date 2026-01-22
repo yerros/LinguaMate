@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "./use-auth";
 import { getOrCreateSubscription, getUserSubscription } from "@/services/subscription";
 import { Subscription } from "@/types/subscriptionsType";
+import { useRevenueCat } from "./use-revenuecat";
 
 /**
  * Hook to get or create user subscription
@@ -10,6 +11,7 @@ import { Subscription } from "@/types/subscriptionsType";
 export const useSubscription = () => {
     const { user } = useAuth();
     const queryClient = useQueryClient();
+    const { isPro: revenueCatIsPro, customerInfo } = useRevenueCat();
 
     const {
         data: subscription,
@@ -21,6 +23,7 @@ export const useSubscription = () => {
         queryFn: async () => {
             if (!user?.clerkId) return null;
             // Get or create subscription (creates FREE if doesn't exist)
+            // RevenueCat sync happens automatically via useRevenueCat hook
             return await getOrCreateSubscription(user.clerkId);
         },
         enabled: !!user?.clerkId,

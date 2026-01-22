@@ -157,10 +157,24 @@ export async function getOrCreateSubscription(clerkId: string): Promise<Subscrip
 
 /**
  * Get subscription tier for a user (defaults to FREE)
- * Automatically creates subscription if it doesn't exist
+ * Checks RevenueCat first, then falls back to Appwrite
  * @param clerkId - The Clerk user ID (used as userId in database)
  */
 export async function getUserSubscriptionTier(clerkId: string): Promise<SubscriptionTier> {
+    try {
+        // First, try to get tier from RevenueCat
+        const { getSubscriptionTierFromRevenueCat } = await import('./revenuecat');
+        const revenueCatTier = await getSubscriptionTierFromRevenueCat(clerkId);
+
+        if (revenueCatTier !== SubscriptionTier.FREE) {
+            console.log('[SUBSCRIPTION SERVICE] ✅ Using RevenueCat tier:', revenueCatTier);
+            return revenueCatTier;
+        }
+    } catch (error) {
+        console.log('[SUBSCRIPTION SERVICE] RevenueCat check failed, using Appwrite:', error);
+    }
+
+    // Fallback to Appwrite
     const subscription = await getOrCreateSubscription(clerkId);
     return subscription?.tier || SubscriptionTier.FREE;
 }

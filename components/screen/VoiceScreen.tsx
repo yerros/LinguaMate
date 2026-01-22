@@ -6,6 +6,7 @@ import { updateUserTotalUsage } from '@/services/usage';
 import { useConversation } from '@elevenlabs/react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import { PressableScale } from 'pressto';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Dimensions, View as RNView, StyleSheet } from 'react-native';
@@ -194,8 +195,7 @@ export default function VoiceScreen() {
                         {
                             text: 'Upgrade',
                             onPress: () => {
-                                // Navigate to upgrade screen
-                                console.log('Navigate to upgrade');
+                                router.push({ pathname: '/(protected)/paywall' as any });
                             }
                         }
                     ]

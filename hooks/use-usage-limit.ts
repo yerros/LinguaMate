@@ -1,23 +1,24 @@
-import { getOrCreateSubscription } from "@/services/subscription";
+import { getUserSubscriptionTier } from "@/services/subscription";
 import { checkUsageLimit, getDailyUsage, incrementUsage } from "@/services/usage";
 import { SubscriptionTier } from "@/types/subscriptionsType";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "./use-auth";
+import { useRevenueCat } from "./use-revenuecat";
 
 /**
  * Hook to check and manage user usage limits
  */
 export const useUsageLimit = () => {
     const { user } = useAuth();
+    const { isPro: revenueCatIsPro } = useRevenueCat();
 
-    // Get subscription tier (automatically creates subscription if doesn't exist)
+    // Get subscription tier (checks RevenueCat first, then Appwrite)
     const { data: subscriptionTier, isLoading: isLoadingTier } = useQuery({
-        queryKey: ['subscriptionTier', user?.clerkId],
+        queryKey: ['subscriptionTier', user?.clerkId, revenueCatIsPro],
         queryFn: async () => {
             if (!user?.clerkId) return SubscriptionTier.FREE;
-            // Get or create subscription, then return tier
-            const subscription = await getOrCreateSubscription(user.clerkId);
-            return subscription.tier;
+            // getUserSubscriptionTier checks RevenueCat first, then Appwrite
+            return await getUserSubscriptionTier(user.clerkId);
         },
         enabled: !!user?.clerkId,
         staleTime: 5 * 60 * 1000, // 5 minutes
