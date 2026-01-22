@@ -11,13 +11,7 @@ import OTPInput from "../components/OTPInput";
 import ContinueButton from "../components/ContinueButton";
 import Form from "../components/Form";
 
-// Safely import expo-router
-let Router: any = { useRouter: () => ({ replace: () => {} }) };
-try {
-  Router = require("expo-router");
-} catch (error) {
-  console.warn('expo-router import failed:', error);
-}
+import { useRouter } from "expo-router";
 
 interface Props {
   emailAddress: string
@@ -31,7 +25,7 @@ function VerifyEmailCodeSignUpForm({
   homeUrl = "/"
 }: Props) {
 
-  const router = Router.useRouter();
+  const router = useRouter();
 
     const { signUp, isLoaded, setActive } = useSignUp();
   
@@ -92,10 +86,19 @@ function VerifyEmailCodeSignUpForm({
       });
 
       if (completeSignUp.status === 'complete') {
-        await setActive({ session: completeSignUp.createdSessionId });
-        router.replace(homeUrl);
+        try {
+          await setActive({ session: completeSignUp.createdSessionId });
+          console.log('[SIGNUP] ✅ Session set active');
+          // Stack.Protected will automatically redirect based on isSignedIn state
+          // But we can also manually redirect as fallback
+          setTimeout(() => {
+            router.replace(homeUrl as any);
+          }, 200);
+        } catch (error) {
+          console.error('[SIGNUP] ❌ Error setting active session:', error);
+        }
       } else {
-        console.error(JSON.stringify(completeSignUp, null, 2));
+        console.error('[SIGNUP] Sign up not complete:', JSON.stringify(completeSignUp, null, 2));
       }
     } catch (err: any) {
       console.error(JSON.stringify(err, null, 2));

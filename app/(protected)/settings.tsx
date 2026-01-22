@@ -113,9 +113,7 @@ export default function SettingsScreen() {
                             </View>
                         </View>
                     </View>
-
-                    {/* Sign Out */}
-                    <View className='mb-6'>
+                    <View className='mx-6 flex-row items-center justify-center'>
                         <SignOutButton />
                     </View>
                 </View>

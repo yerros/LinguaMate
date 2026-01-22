@@ -10,13 +10,7 @@ import ForgotPasswordForm from "./forms/ForgotPasswordForm";
 import NewPasswordForm from "./forms/NewPasswordForm";
 
 
-// Safely import expo-router
-let Router: any = { useRouter: () => ({ replace: () => {} }) };
-try {
-  Router = require("expo-router");
-} catch (error) {
-  console.warn('expo-router import failed:', error);
-}
+import { useRouter } from "expo-router";
 
 enum FormState {
   SignIn,
@@ -35,7 +29,7 @@ interface SignInProps {
 }
 
 export function SignIn({ scheme = "myapp://", signUpUrl = "/(auth)/sign-up", homeUrl = "/" }: SignInProps) {
-  const router = Router.useRouter();
+  const router = useRouter();
   const { isLoaded, setActive } = useSignIn();
 
   const [supportedFirstFactors, setSupportedFirstFactors] = useState<SignInFirstFactor[]>(  );
@@ -55,10 +49,19 @@ export function SignIn({ scheme = "myapp://", signUpUrl = "/(auth)/sign-up", hom
     if (!setActive) {
       return;
     }
-    await setActive({
-      session: sessionId,
-    });
-    router.replace(homeUrl);
+    try {
+      await setActive({
+        session: sessionId,
+      });
+      console.log('[SIGNIN] ✅ Session set active');
+      // Stack.Protected will automatically redirect based on isSignedIn state
+      // But we can also manually redirect as fallback
+      setTimeout(() => {
+        router.replace(homeUrl as any);
+      }, 200);
+    } catch (error) {
+      console.error('[SIGNIN] ❌ Error setting active session:', error);
+    }
   }
 
   switch (formState) {
@@ -73,8 +76,12 @@ export function SignIn({ scheme = "myapp://", signUpUrl = "/(auth)/sign-up", hom
           onSetSupportedFirstFactors={setSupportedFirstFactors}
           scheme={scheme}
           signUpUrl={signUpUrl}
-          onSessionAlreadyExists={() => {
-            router.replace(homeUrl)
+          onSessionAlreadyExists={async () => {
+            console.log('[SIGNIN] Session already exists');
+            // Stack.Protected will handle redirect automatically
+            setTimeout(() => {
+              router.replace(homeUrl as any);
+            }, 200);
           }}
         />
       );
