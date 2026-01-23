@@ -1,13 +1,12 @@
-import { ClerkProvider, useAuth as useClerkAuth } from '@clerk/clerk-expo';
-import { tokenCache } from '@clerk/clerk-expo/token-cache';
-import { Stack } from 'expo-router';
-import { PressablesConfig } from 'pressto';
-
 import LoadingScreen from '@/components/screen/LoadingScreen';
 import { useAuth } from '@/hooks/use-auth';
-import { initializeRevenueCat, logInRevenueCat, logOutRevenueCat } from '@/lib/revenuecat';
+import { initializeRevenueCat, logInRevenueCat } from '@/lib/revenuecat';
+import { ClerkProvider, useAuth as useClerkAuth } from '@clerk/clerk-expo';
+import { tokenCache } from '@clerk/clerk-expo/token-cache';
 import { ElevenLabsProvider } from '@elevenlabs/react-native';
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
+import { Stack } from 'expo-router';
+import { PressablesConfig } from 'pressto';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
@@ -44,42 +43,21 @@ function RootLayoutNav() {
     initRevenueCat();
   }, []);
 
-  // Handle RevenueCat authentication and query cache cleanup
+  // Log in to RevenueCat when user is available
   useEffect(() => {
-    const handleRevenueCatAuth = async () => {
-      if (!isLoaded) return;
-
-      if (isSignedIn && user?.clerkId) {
+    const loginRevenueCat = async () => {
+      if (user?.clerkId && isSignedIn) {
         try {
           await logInRevenueCat(user.clerkId);
           console.log('[REVENUECAT] ✅ User logged in to RevenueCat');
-          
-          // Invalidate all queries to refresh data after login
-          // Wait a bit to ensure user data is ready
-          setTimeout(() => {
-            queryClient.invalidateQueries();
-            console.log('[AUTH] ✅ Invalidated queries after login');
-          }, 500);
         } catch (error) {
           console.error('[REVENUECAT] ❌ Login error:', error);
         }
-      } else if (!isSignedIn) {
-        // User signed out, logout from RevenueCat and clear cache
-        try {
-          await logOutRevenueCat();
-          console.log('[REVENUECAT] ✅ User logged out from RevenueCat');
-        } catch (error) {
-          console.error('[REVENUECAT] ❌ Logout error:', error);
-        }
-        
-        // Clear all query cache when user signs out
-        queryClient.clear();
-        console.log('[AUTH] ✅ Cleared query cache after logout');
       }
     };
 
-    handleRevenueCatAuth();
-  }, [user?.clerkId, isSignedIn, isLoaded, queryClient]);
+    loginRevenueCat();
+  }, [user?.clerkId, isSignedIn]);
 
   if (!isLoaded) {
     return <LoadingScreen />;

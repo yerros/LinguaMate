@@ -13,7 +13,7 @@
       "bundleIdentifier": "com.yerros.LinguaMate",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "This app needs access to microphone for voice conversations.",
-        "UIDesignRequiresCompatibility": true
+        "UIDesignRequiresCompatibility": true,
       }
     },
     "android": {

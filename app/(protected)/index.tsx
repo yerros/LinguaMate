@@ -22,7 +22,7 @@ export default function HomeScreen() {
                 </View>
                 {/* Hero Section */}
                 <View className='flex items-center gap-8 w-full mb-12'>
-                    <Image source={require('@/assets/images/hero-bg.png')} contentFit='contain' style={{ width: width, height: 170 }} />
+                    <Image source={require('@/assets/images/hero-bg.png')} contentFit='contain' style={{ width: width, height: 170, marginBottom: 20 }} />
                     <View className='gap-4'>
                         <Text size='xxxl' className='font-bold '>Hi, I'm Linguamate</Text>
                         <Text size='md' >What would you like to learn today?</Text>
@@ -36,6 +36,9 @@ export default function HomeScreen() {
                         <Text size='md' className='underline'>Tap to speak</Text>
                     </PressableScale>
                 </View>
+                <View className='flex-row items-center justify-center'>
+                    <Text size='md' >Learn new languages with Linguamate</Text>
+                </View>
             </View>
         </Layout>
     );
@@ -44,6 +47,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     buttonSpeak: {
         alignItems: 'center',
+        marginTop: 16,
         gap: 8,
     },
 });
